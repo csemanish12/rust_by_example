@@ -1,0 +1,20 @@
+services:
+  ws-server:
+    build: .
+    container_name: rust-ws-server
+    ports:
+      - "9001:9001"       # host:container — expose WebSocket port to your machine
+    environment:
+      - RUST_LOG=info     # controls tracing log level (info / debug / warn)
+    # Resource limits — simulate a constrained production server
+    # Adjust these to test different scenarios:
+    #   Low spec:  cpus: "0.5"  memory: "128m"
+    #   Mid spec:  cpus: "1.0"  memory: "256m"
+    #   High spec: cpus: "2.0"  memory: "512m"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "256m"
+    # Restart policy — like a real production deployment
+    restart: unless-stopped

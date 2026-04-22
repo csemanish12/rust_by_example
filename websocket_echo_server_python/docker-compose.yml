@@ -1,0 +1,13 @@
+services:
+  websocket-server:
+    build: .
+    container_name: python-ws-server
+    ports:
+      - "9001:9001"
+    # Identical resource limits as the Rust server — fair comparison
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256m
+    restart: unless-stopped

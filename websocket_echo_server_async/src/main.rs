@@ -16,11 +16,11 @@ async fn main() {
 
 
     // bind to address
-    let listener = TcpListener::bind("127.0.0.1:9001")
+    let listener = TcpListener::bind("0.0.0.0:9001")
     .await
     .expect("Failed to bind - is port 9001 already in use?");
 
-    info!(" Async WebSocket Echo Server Listening on ws://127.0.0.1:9001");
+    info!(" Async WebSocket Echo Server Listening on ws://0.0.0.0:9001");
 
     // spawn a task that just waits for CTRL+C
     // when it fires, the whole async runtime shuts down
