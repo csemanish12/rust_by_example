@@ -5,3 +5,5 @@ edition = "2024"
 
 [dependencies]
 mylib = { path = "../mylib" }
+thiserror = "2"
+anyhow = "1"

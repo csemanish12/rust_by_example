@@ -7,5 +7,5 @@ fn main() {
     let r2 = &mut s1;
     println!("r2 is {r2}");
 
-    println!("r1 is again {r1}");
+    // println!("r1 is again {r1}");  // this will produce error
 }
