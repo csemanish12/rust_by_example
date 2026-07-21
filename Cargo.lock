@@ -9,6 +9,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a4385e2e34eb35d6b3efe798b9eb88096925d87726c0798709bf56d9ed84af3"
 
 [[package]]
+name = "exercises"
+version = "0.0.0"
+
+[[package]]
 name = "mylib"
 version = "0.2.0"
 

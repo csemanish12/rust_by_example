@@ -92,6 +92,51 @@ functions from — it never runs standalone, only inside whatever script
 imported it. A binary crate is the `.py` file you'd actually invoke with
 `python script.py`.
 
+### Does Cargo actually compile the two differently?
+
+Yes — genuinely, not just as a naming convention. A few concrete
+differences:
+
+1. **Different final artifact format.** A binary crate compiles all the way
+   down to a real OS-loadable executable (Mach-O on macOS, ELF on Linux, PE
+   on Windows) — a file the OS knows how to map into a running process. A
+   library crate compiles to an `.rlib` file, Rust's own intermediate
+   format — not something the OS can launch, since there's no entry point
+   in it at all.
+
+2. **The `main()` requirement is enforced at the compiler level.** `rustc`
+   (the actual compiler Cargo drives) requires exactly one `fn main()` when
+   compiling with `--crate-type bin`, and errors if it's missing.
+   Compiling with `--crate-type lib`, `main()` isn't required — a library
+   isn't launched, so there's nothing for it to be the entry point of.
+
+3. **The linking step itself differs.** Producing a binary runs the full
+   **linker**: resolving OS-specific process startup code, wiring up the
+   entry point, linking in the Rust standard library and any C libraries
+   needed, producing something the OS loader can map into a process.
+   Producing a library skips almost all of that — it just bundles compiled
+   code and Rust-specific metadata into the `.rlib`, no OS-level linking to
+   a runnable form.
+
+4. **A subtler reason: Rust has no stable ABI** (the low-level convention
+   for how function calls, structs, etc. are laid out in compiled machine
+   code). A C library's `.so`/`.dylib` can be compiled once and linked into
+   many different programs later, because C's ABI is fixed. Rust's isn't —
+   different compiler versions or flags can lay things out differently. So
+   an `.rlib` isn't a "compile once, plug in anywhere" black box the way a
+   C library is — it carries extra compiler metadata (type information,
+   generic function bodies not yet monomorphized, etc.) so that `rustc`
+   itself, compiling the *next* crate up, can finish the job. This is part
+   of why `cargo build` recompiles `mylib` from source every time it's
+   used, rather than truly just linking a prebuilt binary the way linking
+   against `libc` would work in C.
+
+Proof, hands-on: run `cargo build --verbose` from the workspace root and
+look at the actual `rustc` invocations Cargo generates — one will have
+`--crate-type bin`, the other `--crate-type lib`. Or just `ls target/debug/`
+and compare: an actual executable file for `rust_exercises`, sitting right
+next to a `libmylib-*.rlib` file for `mylib`.
+
 ## A minimal binary
 
 ```rust
